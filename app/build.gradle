@@ -1,0 +1,50 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "24.0.0"
+
+    defaultConfig {
+        applicationId "com.kabir.flickrtask"
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    /* AppCompat */
+    compile 'com.android.support:appcompat-v7:23.4.0'
+
+    /* RecyclerView */
+    compile 'com.android.support:recyclerview-v7:23.4.0'
+
+    /* Support Annotations */
+    compile 'com.android.support:support-annotations:23.4.0'
+
+    /* Volley for REST APIs */
+    compile 'com.mcxiaoke.volley:library:1.0.17'
+
+    /* Butterknife - For view injection*/
+    compile 'com.jakewharton:butterknife:7.0.1'
+
+    /* RxAndroid - for RxJava Scheduling*/
+    compile 'io.reactivex:rxjava:1.0.0'
+    compile 'io.reactivex:rxandroid:0.24.0'
+
+    /* Glide - For Image loading*/
+    compile 'com.github.bumptech.glide:glide:3.6.1'
+
+    /* YearClass - to check quality of phone*/
+    compile 'com.facebook.device.yearclass:yearclass:1.0.1'
+}
