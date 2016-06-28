@@ -1,5 +1,7 @@
 package com.kabir.flickrtask.main.api;
 
+import android.support.annotation.NonNull;
+
 import com.android.volley.Request;
 import com.kabir.flickrtask.main.model.FlickrItem;
 import com.kabir.flickrtask.utils.api.ApiParameter;
@@ -30,12 +32,24 @@ public class FlickrApiProvider implements FlickrApi {
     }
 
     @Override
-    public Observable<List<FlickrItem>> getImages() {
+    public Observable<List<FlickrItem>> getImages(@NonNull String tags, int count) {
 
-        String url = "https://api.flickr.com/services/rest/?method=flickr.photosets" +
-                ".getPhotos&api_key=32aaa9f2cbc1b2e897e1b1d9276506f5&user_id=141971872@N04&photoset_id" +
-                "=72157670315276285&format=json&nojsoncallback=true&page=1&per_page=25";
-        return apiProvider.callApi(Request.Method.GET, url, null, GET_IMAGES_API_TAG)
+        StringBuilder builder = new StringBuilder();
+        builder.append(BASE_URL)
+               .append("?")
+               .append(ApiParameter.METHOD).append("=").append(FlickrApi.METHOD)
+               .append("&")
+               .append(ApiParameter.API_KEY).append("=").append(FlickrApi.API_KEY)
+               .append("&")
+               .append(ApiParameter.TAGS).append("=").append(tags)
+               .append("&")
+               .append(ApiParameter.FORMAT).append("=").append(FlickrApi.FORMAT)
+               .append("&")
+               .append(ApiParameter.NO_JSON_CALLBACK).append("=").append(FlickrApi.NO_JSON_CALLBACK)
+               .append("&")
+               .append(ApiParameter.PER_PAGE).append("=").append(String.valueOf(count));
+
+        return apiProvider.callApi(Request.Method.GET, builder.toString(), null, GET_IMAGES_API_TAG)
                           .subscribeOn(Schedulers.io())
                           .observeOn(AndroidSchedulers.mainThread())
                           .map(new Func1<String, JSONArray>() {
@@ -45,8 +59,8 @@ public class FlickrApiProvider implements FlickrApi {
                                   try {
 
                                       JSONObject jsonObject = new JSONObject(response);
-                                      JSONObject photosetObject = jsonObject.getJSONObject(ApiParameter.PHOTOSET);
-                                      JSONArray photoArray = photosetObject.getJSONArray(ApiParameter.PHOTO);
+                                      JSONObject photosObject = jsonObject.getJSONObject(ApiParameter.PHOTOS);
+                                      JSONArray photoArray = photosObject.getJSONArray(ApiParameter.PHOTO);
                                       return photoArray;
                                   } catch (JSONException e) {
                                       e.printStackTrace();

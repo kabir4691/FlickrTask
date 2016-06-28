@@ -1,7 +1,10 @@
 package com.kabir.flickrtask.main.model;
 
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 
+import com.kabir.flickrtask.utils.RandomColorGenerator;
 import com.kabir.flickrtask.utils.api.ApiParameter;
 
 import org.json.JSONException;
@@ -18,6 +21,8 @@ public class FlickrItem {
     private String farm;
     private String title;
     private String imageUrl;
+    @ColorRes private int imagePlaceholder;
+    private boolean isFlipped;
 
     private FlickrItem() {
     }
@@ -32,6 +37,8 @@ public class FlickrItem {
         flickrItem.farm = jsonObject.getString(ApiParameter.FARM);
         flickrItem.title = jsonObject.getString(ApiParameter.TITLE);
         flickrItem.imageUrl = buildImageUrl(flickrItem);
+        flickrItem.imagePlaceholder = RandomColorGenerator.getRandomColor();
+        flickrItem.isFlipped = false;
 
         return flickrItem;
     }
@@ -76,5 +83,18 @@ public class FlickrItem {
 
     public String getImageUrl() {
         return imageUrl;
+    }
+
+    @ColorRes
+    public int getImagePlaceholder() {
+        return imagePlaceholder;
+    }
+
+    public boolean isFlipped() {
+        return isFlipped;
+    }
+
+    public void setFlipped(boolean flipped) {
+        isFlipped = flipped;
     }
 }

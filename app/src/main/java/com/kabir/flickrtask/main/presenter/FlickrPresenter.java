@@ -1,6 +1,7 @@
 package com.kabir.flickrtask.main.presenter;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
@@ -11,5 +12,5 @@ public interface FlickrPresenter {
     boolean attachView(@Nullable Bundle extras);
     void detachView();
 
-    void loadData();
+    void loadData(@NonNull String tags, int count);
 }

@@ -7,9 +7,7 @@
     <ViewSwitcher
         android:id="@+id/view_switcher"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:inAnimation="@anim/animate_in"
-        android:outAnimation="@anim/animate_out">
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/image_view"

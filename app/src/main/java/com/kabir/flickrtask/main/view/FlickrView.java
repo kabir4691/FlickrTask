@@ -1,5 +1,6 @@
 package com.kabir.flickrtask.main.view;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.kabir.flickrtask.main.model.FlickrItem;
@@ -13,5 +14,9 @@ public interface FlickrView {
 
     boolean isViewDestroyed();
 
+    void showToast(@NonNull CharSequence message);
+
+    void showLoading(boolean show);
     void setContent(@Nullable List<FlickrItem> flickrItems);
+    void showContent(boolean show);
 }

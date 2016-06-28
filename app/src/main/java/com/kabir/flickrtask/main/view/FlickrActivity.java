@@ -1,10 +1,19 @@
 package com.kabir.flickrtask.main.view;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.kabir.flickrtask.R;
 import com.kabir.flickrtask.main.api.FlickrApiProvider;
@@ -21,6 +30,9 @@ import butterknife.ButterKnife;
 
 public class FlickrActivity extends AppCompatActivity implements FlickrView {
 
+    @Bind(R.id.tags_edit_text) EditText tagsEditText;
+    @Bind(R.id.count_edit_text) EditText countEditText;
+    @Bind(R.id.loading_progress_bar) ProgressBar loadingProgressBar;
     @Bind(R.id.content_recycler_view) RecyclerView contentRecyclerView;
 
     private ImageProvider imageProvider;
@@ -40,6 +52,34 @@ public class FlickrActivity extends AppCompatActivity implements FlickrView {
         setContentView(R.layout.flickr_activity);
         ButterKnife.bind(this);
 
+        tagsEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    doSearch();
+                    hideKeyboard(v);
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        countEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    doSearch();
+                    hideKeyboard(v);
+                    return true;
+                }
+                return false;
+            }
+        });
+
         contentRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
         imageProvider = new GlideImageProvider(this);
@@ -48,9 +88,7 @@ public class FlickrActivity extends AppCompatActivity implements FlickrView {
         contentRecyclerView.setAdapter(flickrAdapter);
 
         flickrPresenter = new FlickrPresenterImpl(this, new FlickrApiProvider());
-        if (flickrPresenter.attachView(getIntent().getExtras())) {
-            flickrPresenter.loadData();
-        }
+        flickrPresenter.attachView(getIntent().getExtras());
     }
 
     @Override
@@ -64,7 +102,6 @@ public class FlickrActivity extends AppCompatActivity implements FlickrView {
         if (imageProvider != null) {
             imageProvider.releaseMemory();
         }
-
         super.onDestroy();
     }
 
@@ -74,7 +111,38 @@ public class FlickrActivity extends AppCompatActivity implements FlickrView {
     }
 
     @Override
+    public void showToast(@NonNull CharSequence message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showLoading(boolean show) {
+        loadingProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
     public void setContent(@Nullable List<FlickrItem> flickrItems) {
         flickrAdapter.updateDataSet(flickrItems);
+    }
+
+    @Override
+    public void showContent(boolean show) {
+        contentRecyclerView.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private void doSearch() {
+
+        if (flickrPresenter == null) {
+            return;
+        }
+
+        String tags = tagsEditText.getText().toString();
+        int count = Integer.valueOf(countEditText.getText().toString());
+        flickrPresenter.loadData(tags, count);
+    }
+
+    private void hideKeyboard(@NonNull View view) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

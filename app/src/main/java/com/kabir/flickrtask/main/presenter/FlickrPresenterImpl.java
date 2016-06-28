@@ -9,6 +9,8 @@ import com.kabir.flickrtask.main.model.FlickrItem;
 import com.kabir.flickrtask.main.view.FlickrView;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import rx.Observable;
 import rx.Subscription;
@@ -36,6 +38,9 @@ public class FlickrPresenterImpl implements FlickrPresenter {
     public boolean attachView(@Nullable Bundle extras) {
 
         compositeSubscription = new CompositeSubscription();
+
+        flickrView.showLoading(false);
+        flickrView.showContent(false);
         return true;
     }
 
@@ -49,9 +54,30 @@ public class FlickrPresenterImpl implements FlickrPresenter {
     }
 
     @Override
-    public void loadData() {
+    public void loadData(@NonNull final String tags, int count) {
 
-        Observable<List<FlickrItem>> observable = flickrApi.getImages();
+        if (tags.isEmpty()) {
+            flickrView.showToast("Enter tags as comma seperated values (no spaces)");
+            return;
+        }
+
+        Pattern pattern = Pattern.compile("\\s");
+        Matcher matcher = pattern.matcher(tags);
+        if (matcher.find()) {
+            flickrView.showToast("No spaces allowed");
+            return;
+        }
+
+        if (count <= 0) {
+            flickrView.showToast("Count must be greater than 0");
+            return;
+        }
+
+        flickrView.setContent(null);
+        flickrView.showContent(false);
+        flickrView.showLoading(true);
+
+        Observable<List<FlickrItem>> observable = flickrApi.getImages(tags, count);
         Subscription subscription = observable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -59,13 +85,20 @@ public class FlickrPresenterImpl implements FlickrPresenter {
                     @Override
                     public void call(List<FlickrItem> flickrItems) {
                         if (!flickrView.isViewDestroyed()) {
+
+                            flickrView.showLoading(false);
                             flickrView.setContent(flickrItems);
+                            flickrView.showContent(true);
                         }
                     }
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
+
                         throwable.printStackTrace();
+                        if (!flickrView.isViewDestroyed()) {
+                            flickrView.showLoading(false);
+                        }
                     }
                 });
         compositeSubscription.add(subscription);
