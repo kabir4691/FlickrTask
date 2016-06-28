@@ -137,7 +137,11 @@ public class FlickrActivity extends AppCompatActivity implements FlickrView {
         }
 
         String tags = tagsEditText.getText().toString();
-        int count = Integer.valueOf(countEditText.getText().toString());
+        int count = 0;
+        String countText = countEditText.getText().toString();
+        if (!countText.isEmpty()){
+            count = Integer.valueOf(countText);
+        }
         flickrPresenter.loadData(tags, count);
     }
 
